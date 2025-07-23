@@ -20,16 +20,19 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
             /* background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); */
             /* background: linear-gradient(135deg, #ff6ec4 0%, #7873f5 50%, #4ade80 100%); */
-            background: linear-gradient(
-  135deg,
-  #e40303 0%,    /* Red */
-  #ff8c00 16.6%, /* Orange */
-  #ffed00 33.2%, /* Yellow */
-  #008026 49.8%, /* Green */
-  #004dff 66.4%, /* Blue */
-  #750787 83.0%, /* Purple */
-  #ffffff 100%   /* White - optional for clean blend */
-);
+            background: 
+  linear-gradient(
+    135deg,
+    rgba(228,   3,   3, 0.2)   0%,    /* Red */
+    rgba(255, 140,   0, 0.2)   16.6%, /* Orange */
+    rgba(255, 237,   0, 0.2)   33.2%, /* Yellow */
+    rgba(  0, 128,  38, 0.2)   49.8%, /* Green */
+    rgba(  0,  77, 255, 0.2)   66.4%, /* Blue */
+    rgba(117,   7, 135, 0.2)   83.0%, /* Purple */
+    rgba(255, 255, 255, 0.2)  100%   /* White */
+  ),
+  /* white base to ensure lightness */
+  #ffffff;
 
 
             min-height: 100vh;
