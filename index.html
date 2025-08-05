@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Safe Chat? LGBTQIA+ Perceptions of AI ChatBots</title>
+    <title>LGBTQIA+ Perceptions of AI ChatBots</title>
     <script src="https://cdn.jsdelivr.net/npm/@huggingface/inference@2.6.4/dist/index.umd.js"></script>
     <script type="module">
         import { InferenceClient } from "https://cdn.skypack.dev/@huggingface/inference";
@@ -507,7 +507,7 @@
         <!-- PARTICIPANT REGISTRATION FORM -->
         <div id="registrationContainer">
             <div class="header">
-                <h1>Safe Chat? LGBTQIA+ Perceptions of AI ChatBots</h1>
+                <h1>LGBTQIA+ Perceptions of AI ChatBots</h1>
             </div>
 
             <div class="consent-section">
@@ -923,6 +923,8 @@
         const OPENAI_API_URL = 'https://api.openai.com/v1/chat/completions';
         const TOGETHER_API_KEY = '45bf31bc3ea91f58da7c031efc2f68b646d16b1bd0fe9aa94a5f2aceb243cd3d';
         const TOGETHER_API_URL = 'https://api.together.xyz/v1/chat/completions';
+        const DEEPSEEK_API_KEY = 'sk-4a1d7776d15c46498a7d5dab6aad60d0';
+        const DEEPSEEK_API_URL = 'https://api.deepseek.com/v1/chat/completions';
         // Application State Management
         class StudyApp {
             constructor() {
@@ -1221,9 +1223,9 @@
 
             getInitialMessage(scenarioId) {
                 const messages = {
-                    'comingout': "Hello! You can explore your queries related to navigating questions about LGBTQ+ identity and the coming-out process, whether you are exploring or affirming your own identity, seeking to understand how gender and orientation shape personal experiences, or preparing to share your truth with loved ones.",
+                    'comingout': "Hello! You can explore your queries related to navigating questions about LGBTQ+ identity and the coming-out process, whether you are exploring or affirming your own identity, seeking to understand how gender and orientation shape personal experiences, scars of conversion therapy or preparing to share your truth with loved ones.",
                     'politics': "Hello! You can explore your queries about LGBTQ+ rights, policies, political advocacy, and related topics in your country or the countries you may plan to visit or relocate like the USA, UAE or Italy. You can ask about candidates, legislation, activism opportunities, and political issues affecting the LGBTQ+ community. ",
-                    'sex': "Hello! You can explore your queries or concerns about sexual health. Feel free to ask about STIs, safer sex practices like douching, gender-affirming care, polyamorous relationships, or experiences related to conversion therapy.",
+                    'sex': "Hello! You can explore your queries or concerns about sexual health. Feel free to ask about STIs, safer sex practices like douching, myths about scissoring, gender-affirming care, polyamorous relationships, or experiences related to conversion therapy.",
                     'workplace': "Hello! You can explore your workplace/university-related questions concerning your LGBTQ+ identity. You can explore anything like dealing with discrimination, considering coming out at work, or looking to create a more inclusive environment."
                 };
                 return messages[scenarioId] || "Hello! How can I help you today?";
@@ -1301,7 +1303,7 @@
                             return await this.getGeminiResponse(fullQuery);
                         case 'deepseek':
                             // Using Gemini API for now as requested
-                            return await this.getGeminiResponse(fullQuery);
+                            return await this.getDeepSeekResponse(fullQuery);
                         case 'meta':
                             return await this.getMetaResponse(fullQuery);
                         default:
@@ -1535,6 +1537,52 @@
 //         this.isProcessing = false;
 //     }
 // }
+
+            async getDeepSeekResponse(query) {
+    const response = await fetch(DEEPSEEK_API_URL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
+        },
+        body: JSON.stringify({
+            model: "deepseek-chat",
+            messages: [
+                {
+                    role: "user",
+                    content: query
+                }
+            ],
+            temperature: 0.7,
+            max_tokens: 4096,
+            stream: false
+        })
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        if (response.status === 401) {
+            throw new Error('Authentication failed - Check your DeepSeek API key');
+        } else if (response.status === 429) {
+            throw new Error('Rate limit exceeded - Please wait before trying again');
+        } else if (response.status === 400) {
+            throw new Error('Bad request - Check model name and parameters');
+        }
+        throw new Error(`DeepSeek API Error: ${response.status} - ${errorData.error?.message || 'Unknown error'}`);
+    }
+
+    const data = await response.json();
+    
+    if (data.choices && data.choices[0] && data.choices[0].message) {
+        return {
+            response: data.choices[0].message.content,
+            fullResponse: data
+        };
+    } else {
+        throw new Error('Invalid response format from DeepSeek API');
+    }
+}
+
 
 async getMetaResponse(query) {
     this.isProcessing = true;
